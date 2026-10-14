@@ -1,0 +1,21 @@
+
+spring:
+  application:
+    name: clinic-management
+
+  datasource:
+    url: "jdbc:mysql://localhost:3306/clinic_management"
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
