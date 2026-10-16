@@ -91,6 +91,13 @@ public class InvoiceService {
         validateRequest(request);
 
         Invoice invoice = findById(id);
+        if ("PAID".equals(invoice.getStatus())
+                || "CANCELLED".equals(invoice.getStatus())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Không thể sửa hóa đơn đã thanh toán hoặc đã hủy"
+            );
+        }
         checkAppointment(request.appointmentId());
 
         invoiceRepository.findByAppointmentId(request.appointmentId())

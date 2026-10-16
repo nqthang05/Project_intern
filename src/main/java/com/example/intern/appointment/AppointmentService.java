@@ -89,6 +89,11 @@ public class AppointmentService {
     ) {
         checkPatientExists(request.patientId());
         checkDoctorExists(request.doctorId());
+        checkAppointmentConflict(
+                request.doctorId(),
+                request.appointmentTime(),
+                null
+        );
 
         Appointment appointment = new Appointment();
         applyRequest(appointment, request);
@@ -109,6 +114,11 @@ public class AppointmentService {
 
         checkPatientExists(request.patientId());
         checkDoctorExists(request.doctorId());
+        checkAppointmentConflict(
+                request.doctorId(),
+                request.appointmentTime(),
+                id
+        );
 
         applyRequest(appointment, request);
 
@@ -237,4 +247,40 @@ public class AppointmentService {
                 appointment.getUpdatedAt()
         );
     }
+
+
+    private void checkAppointmentConflict(
+            Long doctorId,
+            java.time.LocalDateTime appointmentTime,
+            Long currentAppointmentId
+    ) {
+        boolean conflict;
+
+        if (currentAppointmentId == null) {
+            conflict =
+                    appointmentRepository
+                            .existsByDoctorIdAndAppointmentTimeAndStatusNot(
+                                    doctorId,
+                                    appointmentTime,
+                                    "CANCELLED"
+                            );
+        } else {
+            conflict =
+                    appointmentRepository
+                            .existsByDoctorIdAndAppointmentTimeAndStatusNotAndIdNot(
+                                    doctorId,
+                                    appointmentTime,
+                                    "CANCELLED",
+                                    currentAppointmentId
+                            );
+        }
+
+        if (conflict) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Bác sĩ đã có lịch hẹn khác vào thời gian này"
+            );
+        }
+    }
+
 }

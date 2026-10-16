@@ -63,6 +63,16 @@ public class InvoiceItemService {
         validateRequest(request);
         checkReferences(request);
 
+        Invoice invoice = findInvoice(request.invoiceId());
+
+        if ("PAID".equals(invoice.getStatus())
+                || "CANCELLED".equals(invoice.getStatus())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Không thể thêm chi tiết vào hóa đơn đã thanh toán hoặc đã hủy"
+            );
+        }
+
         InvoiceItem item = new InvoiceItem();
         applyRequest(item, request);
 
